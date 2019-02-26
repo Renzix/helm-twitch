@@ -34,7 +34,7 @@
 (require 'helm)
 
 (require 'twitch-api)
-(require 'livestreamer)
+(require 'streamlink)
 
 (defgroup helm-twitch nil
   "A helm plugin to search for live Twitch channels."
@@ -49,8 +49,8 @@ Similar to `helm-candidate-number-limit'."
   :group 'helm-twitch
   :type 'string)
 
-(defcustom helm-twitch-enable-livestreamer-actions t
-  "Whether actions to use `livestreamer-mode' should be
+(defcustom helm-twitch-enable-streamlink-actions t
+  "Whether actions to use `streamlink-mode' should be
 available."
   :group 'helm-twitch
   :type 'boolean)
@@ -86,15 +86,15 @@ seconds."
   "Face used for a stream's status in `helm-twitch'."
   :group 'helm-twitch)
 
-(defun helm-twitch--livestreamer-header (stream)
-  "Provides a Twitch.tv header for `livestreamer-mode'."
+(defun helm-twitch--streamlink-header (stream)
+  "Provides a Twitch.tv header for `streamlink-mode'."
   (concat
    (propertize "Twitch.tv:" 'face 'font-lock-variable-name-face)
    " "
    (propertize (twitch-api-stream-name stream)
                'face 'helm-twitch-channel-face)
    " "
-   (propertize (concat "(size: " livestreamer-current-size ")")
+   (propertize (concat "(size: " streamlink-current-size ")")
                'face 'font-lock-string-face)
    " -- "
    (propertize (format "%d viewers" (twitch-api-stream-viewers stream))
@@ -103,11 +103,11 @@ seconds."
    (propertize (twitch-api-stream-status stream)
                'face 'helm-twitch-status-face)))
 
-(defun helm-twitch--livestreamer-open (stream)
-  "Opens a Twitch.tv stream in `livestreamer-mode'."
-  (let ((livestreamer-header-fn #'helm-twitch--livestreamer-header)
-        (livestreamer-header-fn-args (list stream)))
-    (livestreamer-open (twitch-api-stream-url stream))))
+(defun helm-twitch--streamlink-open (stream)
+  "Opens a Twitch.tv stream in `streamlink-mode'."
+  (let ((streamlink-header-fn #'helm-twitch--streamlink-header)
+        (streamlink-header-fn-args (list stream)))
+    (streamlink-open (twitch-api-stream-url stream))))
 
 (defun helm-twitch--format-stream (stream)
   "Given a `twitch-api-stream' STREAM, return a a formatted string
@@ -149,10 +149,10 @@ bound to HELM-PATTERN."
 (defun helm-twitch--update-stream-actions ()
   "Updates available `helm' actions for a stream."
   (setq helm-twitch--stream-actions
-         '(("Open this stream in a browser" .
-            (lambda (stream) (browse-url (twitch-api-stream-url stream))))))
-  (when helm-twitch-enable-livestreamer-actions
-    (push '("Open this stream in Livestreamer" . helm-twitch--livestreamer-open)
+        '(("Open this stream in a browser" .
+           (lambda (stream) (browse-url (twitch-api-stream-url stream))))))
+  (when helm-twitch-enable-streamlink-actions
+    (push '("Open this stream in streamlink" . helm-twitch--streamlink-open)
           helm-twitch--stream-actions))
   (when twitch-api-oauth-token
     (push '("Follow this stream's channel" .
@@ -163,8 +163,8 @@ bound to HELM-PATTERN."
           helm-twitch--stream-actions))
   (when helm-twitch-enable-chat-actions
     (push '("Open Twitch chat for this channel" .
-              (lambda (stream)
-                (twitch-api-open-chat (twitch-api-stream-name stream))))
+            (lambda (stream)
+              (twitch-api-open-chat (twitch-api-stream-name stream))))
           helm-twitch--stream-actions)))
 
 (defvar helm-twitch--top-streams-cache nil)
@@ -213,10 +213,10 @@ bound to HELM-PATTERN."
 (defun helm-twitch--update-following-actions ()
   "Updates available `helm' actions for a followed stream."
   (setq helm-twitch--following-actions
-         '(("Open this stream in a browser" .
-            (lambda (stream) (browse-url (twitch-api-stream-url stream))))))
-  (when helm-twitch-enable-livestreamer-actions
-    (push '("Open this stream in Livestreamer" . helm-twitch--livestreamer-open)
+        '(("Open this stream in a browser" .
+           (lambda (stream) (browse-url (twitch-api-stream-url stream))))))
+  (when helm-twitch-enable-streamlink-actions
+    (push '("Open this stream in streamlink" . helm-twitch--streamlink-open)
           helm-twitch--following-actions))
   (push '("Unfollow this stream's channel" .
           (lambda (stream)
@@ -226,8 +226,8 @@ bound to HELM-PATTERN."
         helm-twitch--following-actions)
   (when helm-twitch-enable-chat-actions
     (push '("Open Twitch chat for this channel" .
-              (lambda (stream)
-                (twitch-api-open-chat (twitch-api-stream-name stream))))
+            (lambda (stream)
+              (twitch-api-open-chat (twitch-api-stream-name stream))))
           helm-twitch--following-actions)))
 
 (defun helm-twitch--channel-candidates ()

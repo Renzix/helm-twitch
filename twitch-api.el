@@ -29,7 +29,7 @@
   "Version of this package to advertise in the User-Agent string.")
 
 (defcustom twitch-api-game-filter nil
-  "If specified, limits the search to those streaming this game."
+  "If specified, limits the search to streaming this game."
   :version 0.1
   :type 'string)
 
@@ -123,12 +123,12 @@ For example:
     ;; Support setting the method lexically, as with url.el.
     (when url-request-method
       (push (format "-X%s" url-request-method) curl-opts))
-	  ;; Add the Authorization ID (if present).
+    ;; Add the Authorization ID (if present).
     (when (and auth twitch-api-oauth-token)
       (push `("Authorization" . ,(format "OAuth %s" twitch-api-oauth-token))
             headers))
-	  ;; Add the Client ID (if present).
-	  (when twitch-api-client-id
+    ;; Add the Client ID (if present).
+    (when twitch-api-client-id
       (push `("Client-ID" . ,twitch-api-client-id) headers))
     ;; Wrap up arguments to curl.
     (dolist (header headers)
